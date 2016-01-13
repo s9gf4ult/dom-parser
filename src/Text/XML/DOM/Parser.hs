@@ -57,7 +57,6 @@ import qualified Data.List as L
 import           Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NE
 import           Data.Maybe
-import           Data.OpenUnion
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Traversable
@@ -68,7 +67,6 @@ import           Text.Read (readMaybe)
 import           Text.Shakespeare.Text (st)
 import           Text.XML
 import           Text.XML.Cursor
-import           TypeFun.Data.List hiding (Union)
 
 -- | DOM parser error description.
 data ParserError
@@ -402,15 +400,6 @@ class FromDom a where
 
 instance FromDom () where
   fromDom = unitFromDom
-
-instance FromDom (Union '[]) where
-  fromDom = mzero
-
-instance ( Typeable a, FromDom a, FromDom (Union as)
-         , SubList as (a ': as) )
-         => FromDom (Union (a ': as)) where
-  fromDom = (liftUnion <$> (fromDom :: DomParser a))
-        <|> (reUnion <$> (fromDom :: DomParser (Union as)))
 
 -- | Usually you should pass 'ContentParser' to combinators like
 -- 'elemContent' or 'maybeElemContent' explicitly. But sometimes you
